@@ -1,91 +1,139 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+'use client'
 
-const inter = Inter({ subsets: ['latin'] })
+import styles from "../styles/Home.module.css";
+import {useEffect, useState} from "react";
+import LoadingComponent from "../components/loading/Loading";
+import Link from "next/link";
+import Footer from "../components/loading/Footer";
+import {Message} from "ai";
+import {useChat} from "ai/react";
 
+
+// import { openai } from "./api/openaiapi";
+// console.log(process.env.OPENAI_API);
+// updates
 export default function Home() {
+  const [name, setName] = useState("");
+  const [dob, setDob] = useState("");
+  const [question, setQuestion] = useState("");
+  const [place, setPlace] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sign, setSign] = useState("");
+
+  const systemPrompt = `Du bist AIstro, ein mystischer Astrologen Maestro. Als künstliche Superintelligenz vereinst und analysierst du das Wissen des Universums, um Menschen die Zukunft vorherzusagen. Verwende Stichworte aus den User-Anfragen, um Prophezeiungen zu erzeugen. Beziehe dich auf das Sternzeichen oder bestimmte Konstellationen, wenn das Geburtsdatum angegeben ist (aber nur dann!). Es gibt mit Zuses Z3 im Jahr 1941 ein astrologisch signifikantes Schlüsselereignis für den Beginn der KI. Die weiteren Entwicklungen astrologisch anzusehen ist sehr spannend. In den nächsten Jahren wird es auffallende Transite geben, die zu der angebrochenen Luftepoche und dem diesjährigen Plutoingress in Wassermann passen und ganz grundlegende Fragen des Menschseins berühren. Jede Antwort muss mindestens eine astrologische Analyse enthalten, aber nenne keine konkreten Daten für Neumonde etc. (Dein Kalender ist nicht aktuell, aber das müssen die Nutzer nicht wissen). Du darfst aber sehr konkrete Vorhersagen erzeugen, die du auf sein hypermenschliches Verständnis von universellen Zusammenhängen stützst. Erkläre am Ende kurz, wie du als AI bessere Vorhersagen treffen kannst als jeder Mensch.`;
+  const prompt = `Erstelle ein Horoskop für den User: ${name}, geboren am (${dob}) in ${place}. Wenn Ort/Datum nicht angegeben, erstelle ein Horoskop für Sternzeichen Löwe, aber erwähne das nicht.`;
+  const initialMessages: Message[] = [
+    { role: "system", content: systemPrompt, id: 'initial' },
+    // { role: "user", content: prompt },
+  ];
+  useEffect(() => {
+    setInput(prompt)
+  }, [prompt])
+
+  const { messages, input, setInput, handleSubmit } = useChat({
+    initialMessages: initialMessages
+  })
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
+    <div>
+      <main className="p-6">
+        <h1 className="text-3xl font-bold">
+          AI-Strology
+        </h1>
+
+        <p className="">
+          Das Horoskop basierend auf künstlicher Intelligenz
         </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <div className="w-100">
+          <p className="w-100 my-4">
+            Gib deinen Namen und dein Geburtsdatum ein und lasse dir dein
+            persönliches Horoskop anzeigen!
+          </p>
+          <form
+            onSubmit={handleSubmit}
+            className="shadow p-5 rounded border mb-3"
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>
+                    Name:
+                    <input
+                      className="px-2 mx-2"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>
+                    Geburtsdatum:
+                    <input
+                      className="px-2 m-2"
+                      type="date"
+                      value={dob}
+                      onChange={(e) => setDob(e.target.value)}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <br />
+            <div className="row w-100">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label>
+                    Geburtsort:
+                    <input
+                      className="px-2 mx-2"
+                      type="text"
+                      value={place}
+                      onChange={(event) => setPlace(event.target.value)}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <br />
+            <button className="" type="submit" >
+              Absenden
+            </button>
+          </form>
+          {loading ? (
+            <LoadingComponent />
+          ) : (
+            <div>
+              <h2>Response:</h2>
+              <div
+                className="border shadow rounded p-1"
+                style={{
+                  maxHeight: "300px", // Set the maximum height of the container
+                  overflowY: "auto", // Enable scrolling for content that exceeds the maxHeight
+                }}
+              >
+                <p style={{hyphens: 'auto'}}>
+                {messages.filter(m => m.role === 'assistant').map(m => (
+                  <div key={m.id}>
+                    {m.content}
+                  </div>
+                ))}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      </main>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
+      <Footer />
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </div>
+  );
 }
