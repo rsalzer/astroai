@@ -27,13 +27,14 @@ export default function Home() {
     { role: "system", content: systemPrompt, id: 'initial' },
     // { role: "user", content: prompt },
   ];
+
+  const { messages, setMessages, input, setInput, handleSubmit } = useChat({
+  })
+
   useEffect(() => {
+    // setMessages(initialMessages)
     setInput(prompt)
   }, [prompt])
-
-  const { messages, input, setInput, handleSubmit } = useChat({
-    initialMessages: initialMessages
-  })
 
   return (
     <div>
@@ -52,7 +53,10 @@ export default function Home() {
             persönliches Horoskop anzeigen!
           </p>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={(e) => {
+              setMessages(initialMessages)
+              handleSubmit(e)
+            }}
             className="shadow p-5 rounded border mb-3"
           >
             <div className="row">
