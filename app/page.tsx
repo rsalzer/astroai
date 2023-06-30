@@ -39,7 +39,7 @@ export default function Home() {
     <div>
       <main className="p-6">
         <h1 className="text-3xl font-bold">
-          AI-Strology
+          New AI-Strology
         </h1>
 
         <p className="">
